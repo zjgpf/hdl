@@ -61,14 +61,14 @@ CHIP ALU {
     Mux16 (a=andxy,b=sumxy,sel=f,out=out2);
 
     Not16 (in=out2,out=notout2);
-    Mux16 (a=out2,b=notout2,sel=no,out=out);
+    Mux16 (a=out2,b=notout2,sel=no,out=out,out[15]=out15,out[0..7]=out07,out[8..15]=out815);
 
-    //And (a=true,b=out1[15],out=ng);
+    And (a=true,b=out15,out=ng);
     
-    //Or8Way(in=out1[0..7],out=negzr1);
-    //Or8Way(in=out1[8..15],out=negzr2);
-    //Or (a=negzr2,b=negzr1,out=negzr);
-    //Not (in=negzr,out=zr);
+    Or8Way(in=out07,out=negzr1);
+    Or8Way(in=out815,out=negzr2);
+    Or (a=negzr2,b=negzr1,out=negzr);
+    Not (in=negzr,out=zr);
 
     //And16 (a=out1,b=true,out=out);
 }
