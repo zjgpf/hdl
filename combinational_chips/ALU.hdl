@@ -70,5 +70,4 @@ CHIP ALU {
     Or (a=negzr2,b=negzr1,out=negzr);
     Not (in=negzr,out=zr);
 
-    //And16 (a=out1,b=true,out=out);
 }
