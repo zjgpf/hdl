@@ -39,19 +39,26 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    Mux16 (a=instruction,b=aluout,sel=instruction[15],out=aRegisterIn);
-    Or (a=instruction[15],b=instruction[5],out=loadA);
-    Register (in=aRegisterIn,load=loadA,out=aRegisterOut);
-    Register (in=aluOut,load=instruction[3],out=x);
+    Mux16 (a=instruction,b=aluOut,sel=instruction[15],out=aRegisterIn);
+    Not (in=instruction[15],out=isA);
+    Or (a=isA,b=instruction[5],out=loadA);
+    And (a=instruction[4],b=instruction[15],out=loadD);
+    ARegister (in=aRegisterIn,load=loadA,out=aRegisterOut,out[0..14]=addressM);
+    DRegister (in=aluOut,load=loadD,out=x);
     Mux16 (a=aRegisterOut,b=inM,sel=instruction[12],out=y);
-    ALU (x=x,y=y,zx=instruction[11],nx=instruction[10],zy=instruction[9],ny=instruction[8],f=instruction[7],no=instruction[6],out=aluOut,zr=aluZr,ng=aluNg);
+    ALU (x=x,y=y,zx=instruction[11],nx=instruction[10],zy=instruction[9],ny=instruction[8],f=instruction[7],no=instruction[6],out=aluOut,out=outM,zr=aluZr,ng=aluNg);
 
-    Not (in=aluNg,out=aluPos);
+    And (a=instruction[15],b=instruction[3],out=writeM);
+
+    Or (a=aluZr,b=aluNg,out=aluNotPos);
+    Not (in=aluNotPos,out=aluPos);
     And (a=instruction[0],b=aluPos,out=jumpPos);
     And (a=instruction[1],b=aluZr,out=jumpZr);
     And (a=instruction[2],b=aluNg,out=jumpNg);
     Or (a=jumpPos,b=jumpZr,out=jumpTmp);
-    Or (a=jumpTmp,b=jumpNg,out=loadPC);
+    Or (a=jumpTmp,b=jumpNg,out=loadPC1);
 
-    PC (in=aRegisterOut,load=loadPC,inc=true,reset=reset,out=outPC);
+    And (a=loadPC1,b=instruction[15],out=loadPC);
+
+    PC (in=aRegisterOut,load=loadPC,inc=true,reset=reset,out[0..14]=pc);
 }
